@@ -30,6 +30,9 @@
     <ClInclude Include="smps_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="text_serializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -1,21 +1,28 @@
 #pragma once
 #include "smps_common.h"
-
+#include "serializer.h"
 
 #define VIRTUAL_SER_MEMBER(i) virtual bool ser_member(ser_field_ind_class<i>,std::vector<std::pair<std::string, std::string>>& serialization_vector){return false;} 
-#define SER_MEMBER(i) bool ser_member_i(){ return true;} 
+#define SER_MEMBER(i, name) void smps::serializable<i>::ser_mem_func(smps::ser_field_ind_class<i>, const smps::serializer ser) { smps::serializable<i-1>::ser_mem_func(smps::ser_field_ind_class<i-1>(), ser); serialization_vec.push_back(std::make_pair(std::string(#name), std::string(#name))); } 
 
 namespace smps
 {
+
 
 	template <unsigned int n> class ser_field_ind_class {};
 
 	template<unsigned int n> class serializable :public serializable<n - 1>
 	{
 	public:
-		VIRTUAL_SER_MEMBER(n);
+		virtual void ser_mem_func(ser_field_ind_class<n> a, const serializer ser) = 0;
 	};
-	template<> class serializable<0> {};
+
+
+	template<> class serializable<0> {
+	protected:
+		std::vector<std::pair<std::string, std::string>> serialization_vec;
+		virtual void ser_mem_func(ser_field_ind_class<0>, const serializer ser) {};
+	};
 
 
 	/*class serializable
