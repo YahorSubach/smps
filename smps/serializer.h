@@ -5,6 +5,8 @@ namespace smps
 	class serializer
 	{
 	public:
+
+
 		/*template<int field_count>
 		virtual serializationT Serialize(const serializable<field_count>& obj_for_serialization) = 0;
 
