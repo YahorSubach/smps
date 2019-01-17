@@ -2,6 +2,9 @@
 namespace smps
 {
 
+
+
+	template<class re>
 	class serializer
 	{
 	public:

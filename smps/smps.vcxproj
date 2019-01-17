@@ -147,10 +147,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="json.h" />
     <ClInclude Include="serializable.h" />
+    <ClInclude Include="serialization_accumulator.h" />
     <ClInclude Include="serializer.h" />
     <ClInclude Include="smps_common.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="string_ser_accum.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="text_serializer.h" />
   </ItemGroup>
