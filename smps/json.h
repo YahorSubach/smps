@@ -1,21 +1,11 @@
 #pragma once
-#include "serialization_accumulator.h"
+#include "string_accumulator.h"
 
 namespace smps
 {
-	class json_field_serializer
+	class json_accumulator :public string_accumulator<serializer<json_accumulator>>
 	{
 	public:
-		template<class T>
-		static std::pair<std::string, std::string> serialize(const std::string& name, const T& n) { return std::make_pair("\"" + name + "\"", std::to_string(n)); }
-	};
-
-	class json_accumulator :public serialization_accumulator<std::pair<std::string, std::string>, std::string>
-	{
-	protected:
-		std::vector<std::pair<std::string, std::string>> ser_vec;
-	public:
-		void add_field(const std::pair<std::string, std::string>& field) { ser_vec.push_back(field); }
 		std::string Result()
 		{
 			std::stringstream ss;
@@ -35,7 +25,5 @@ namespace smps
 		}
 	};
 
-	template<class serialization_obj_type>
-	class json_smps :public obj_serializer<std::string, json_field_serializer, json_accumulator, serialization_obj_type>
-	{};
+	typedef serializer<json_accumulator> json_serializer;
 }

@@ -149,7 +149,7 @@
   <ItemGroup>
     <ClInclude Include="json.h" />
     <ClInclude Include="serializable.h" />
-    <ClInclude Include="serialization_accumulator.h" />
+    <ClInclude Include="string_accumulator.h" />
     <ClInclude Include="serializer.h" />
     <ClInclude Include="smps_common.h" />
     <ClInclude Include="stdafx.h" />

@@ -33,13 +33,13 @@
     <ClInclude Include="text_serializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="serialization_accumulator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="string_ser_accum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="string_accumulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
