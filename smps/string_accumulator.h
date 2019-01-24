@@ -50,4 +50,26 @@ namespace smps
 		}
 		virtual std::string Result() = 0;
 	};
+
+	template<class serializer_implementation >
+	class string_parser
+	{
+	protected:
+		std::string serialized_obj;
+		std::map<std::string, std::string> deser_map;
+	public:
+		string_parser(std::string str) :serialized_obj(str){}
+		virtual void Split() = 0;
+
+		template<class serializable_type, int field_ind>
+		void get_field(serializable_type& obj)
+		{
+			std::map<std::string, std::string>::iterator it;
+			it = deser_map.find(serializable_type::field_accessor<field_ind>::GetNames());
+			if (deser_map.find())
+				serializable_type::field_accessor<field_ind>::SetField(obj, string_field_serializer<IS_SER_FIELD_IMPL(T), serializer_implementation>::Deserialize(it->second));
+		}
+	};
+
+
 }
