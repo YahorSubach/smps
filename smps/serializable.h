@@ -20,7 +20,7 @@ class field_accessor<i>\
 		static decltype(name) GetField(T* obj_ptr){return obj_ptr->name;}\
 		template<class T>\
 		static void SetField(T* obj_ptr, decltype(name)& value){ obj_ptr->name = value;}\
-};
+};\
 
 
 

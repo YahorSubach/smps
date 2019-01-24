@@ -28,10 +28,10 @@ namespace smps
 				accum.add_field(serializable_obj_type::field_accessor<i>::GetName(), serializable_obj_type::field_accessor<i>::GetField(&obj));
 			}
 			template<class serializable_obj_type>
-			static void deserialize_fields(serialization_parser& parser, const serializable_obj_type& obj)
+			static void deserialize_fields(serialization_parser& parser, serializable_obj_type& obj)
 			{
 				fields_iterator<i - 1>::deserialize_fields(parser, obj);
-				serializable_obj_type::field_accessor<i>::SetField(&obj, parser.get_field<serializable_obj_type::field_accessor<i>>();)
+				parser.get_field<serializable_obj_type, i>(obj);
 			}
 		};
 
@@ -42,7 +42,7 @@ namespace smps
 			static void serialize_fields(serialization_accumulator& accum, const serializable_obj_type& obj)
 			{}
 			template<class serializable_obj_type>
-			static void deserialize_fields(serialization_accumulator& accum, const serializable_obj_type& obj)
+			static void deserialize_fields(serialization_parser& accum, const serializable_obj_type& obj)
 			{}
 		};
 
@@ -58,8 +58,11 @@ namespace smps
 		template<class serializable_obj_type>
 		static serializable_obj_type Deserialize(const decltype(std::declval<serialization_accumulator>().Result())& serialized_obj)
 		{
+			serializable_obj_type obj;
 			serialization_parser parser(serialized_obj);
-			return serializable_obj_type();
+			parser.Split();
+			fields_iterator<serializable_obj_type::field_count::value>::deserialize_fields(parser, obj);
+			return obj;
 		}
 
 	};
