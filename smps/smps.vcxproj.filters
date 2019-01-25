@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="serializable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -30,23 +24,17 @@
     <ClInclude Include="smps_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="text_serializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="string_ser_accum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="json.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="string_accumulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="string_field_serializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="smps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

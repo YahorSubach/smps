@@ -1,6 +1,7 @@
-#pragma once
-#include "serializable.h"
+#ifndef SMPS_SERIALIZER_H_
+#define SMPS_SERIALIZER_H_
 
+#include "serializable.h"
 
 namespace smps
 {
@@ -8,62 +9,61 @@ namespace smps
 	typedef char Small;
 	class Big { char a[2]; };
 
-	Small SmallIfSerializableFieldImpl(const serializable_field&);
+	Small SmallIfSerializableFieldImpl(const SerializableField&);
 	Big SmallIfSerializableFieldImpl(...);
 
 #define IS_SER_FIELD_IMPL(type) sizeof(SmallIfSerializableFieldImpl(std::declval<type>()))==sizeof(Small)
 
-
-	template<class serialization_accumulator, class serialization_parser>
-	class serializer
+	template<class SerializrAccumulator, class SerializationParser>
+	class Serializer
 	{
 		template<int i>
-		class fields_iterator : public fields_iterator<i - 1>
+		class FieldsIterator : public FieldsIterator<i - 1>
 		{
 		public:
-			template<class serializable_obj_type>
-			static void serialize_fields(serialization_accumulator& accum, const serializable_obj_type& obj)
+			template<class SerializableObjType>
+			static void serialize_fields(SerializrAccumulator& accum, const SerializableObjType& obj)
 			{
-				fields_iterator<i - 1>::serialize_fields(accum, obj);
-				accum.add_field(serializable_obj_type::field_accessor<i>::GetName(), serializable_obj_type::field_accessor<i>::GetField(&obj));
+				FieldsIterator<i - 1>::serialize_fields(accum, obj);
+				accum.add_field(SerializableObjType::FieldAccessor<i>::GetName(), SerializableObjType::FieldAccessor<i>::GetField(&obj));
 			}
-			template<class serializable_obj_type>
-			static void deserialize_fields(serialization_parser& parser, serializable_obj_type& obj)
+			template<class SerializableObjType>
+			static void deserialize_fields(SerializationParser& parser, SerializableObjType& obj)
 			{
-				fields_iterator<i - 1>::deserialize_fields(parser, obj);
-				parser.get_field<serializable_obj_type, i>(obj);
+				FieldsIterator<i - 1>::deserialize_fields(parser, obj);
+				parser.get_field<SerializableObjType, i>(obj);
 			}
 		};
 
 		template<>
-		class fields_iterator<0> {
+		class FieldsIterator<0> {
 		public:
-			template<class serializable_obj_type>
-			static void serialize_fields(serialization_accumulator& accum, const serializable_obj_type& obj)
+			template<class SerializableObjType>
+			static void serialize_fields(SerializrAccumulator& accum, const SerializableObjType& obj)
 			{}
-			template<class serializable_obj_type>
-			static void deserialize_fields(serialization_parser& accum, const serializable_obj_type& obj)
+			template<class SerializableObjType>
+			static void deserialize_fields(SerializationParser& accum, const SerializableObjType& obj)
 			{}
 		};
 
 	public:
-		template<class serializable_obj_type>
-		static decltype(std::declval<serialization_accumulator>().Result()) Serialize(const serializable_obj_type& obj)
+		template<class SerializableObjType>
+		static decltype(std::declval<SerializrAccumulator>().Result()) Serialize(const SerializableObjType& obj)
 		{
-			serialization_accumulator accum;
-			fields_iterator<serializable_obj_type::field_count::value>::serialize_fields(accum, obj);
+			SerializrAccumulator accum;
+			FieldsIterator<SerializableObjType::FieldCount::value>::serialize_fields(accum, obj);
 			return accum.Result();
 		}
 
-		template<class serializable_obj_type>
-		static serializable_obj_type Deserialize(const decltype(std::declval<serialization_accumulator>().Result())& serialized_obj)
+		template<class SerializableObjType>
+		static SerializableObjType Deserialize(const decltype(std::declval<SerializrAccumulator>().Result())& serialized_obj)
 		{
-			serializable_obj_type obj;
-			serialization_parser parser(serialized_obj);
+			SerializableObjType obj;
+			SerializationParser parser(serialized_obj);
 			parser.Split();
-			fields_iterator<serializable_obj_type::field_count::value>::deserialize_fields(parser, obj);
+			FieldsIterator<SerializableObjType::FieldCount::value>::deserialize_fields(parser, obj);
 			return obj;
 		}
-
 	};
 }
+#endif  // SMPS_SERIALIZER_H_

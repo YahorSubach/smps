@@ -1,11 +1,13 @@
-#pragma once
+#ifndef SMPS_JSON_H_
+#define SMPS_JSON_H_
+
 #include "string_accumulator.h"
 
 namespace smps
 {
-	class json_parser;
+	class JsonParser;
 
-	class json_accumulator :public string_accumulator<serializer<json_accumulator, json_parser>>
+	class JsonAccumulator :public StringAccumulator<Serializer<JsonAccumulator, JsonParser>>
 	{
 	public:
 		std::string Result()
@@ -27,10 +29,10 @@ namespace smps
 		}
 	};
 
-	class json_parser :public string_parser<serializer<json_accumulator, json_parser>>
+	class JsonParser :public StringParser<Serializer<JsonAccumulator, JsonParser>>
 	{
 	public:
-		json_parser(std::string ser_obj) :string_parser<serializer<json_accumulator, json_parser>>(ser_obj) {}
+		JsonParser(std::string ser_obj) :StringParser<Serializer<JsonAccumulator, JsonParser>>(ser_obj) {}
 		void Split() {
 			std::string key;
 			std::string value;
@@ -73,5 +75,7 @@ namespace smps
 	};
 
 
-	typedef serializer<json_accumulator, json_parser> json_serializer;
+	typedef Serializer<JsonAccumulator, JsonParser> json_Serializer;
 }
+
+#endif  // SMPS_JSON_H_
