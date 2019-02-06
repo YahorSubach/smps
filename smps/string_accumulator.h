@@ -39,7 +39,7 @@ namespace smps
 			if (it != deser_map.end())
 			{
 				typedef decltype(serializable_type::FieldAccessor<field_ind>::GetField(&obj)) field_type;
-				decltype(serializable_type::FieldAccessor<field_ind>::GetField(&obj)) field_value = StringFieldSerializer<SerializerImplementation>::Deserialize<decltype(serializable_type::FieldAccessor<field_ind>::GetField(&obj))>(it->second);
+				decltype(serializable_type::FieldAccessor<field_ind>::GetField(&obj)) field_value = StringFieldSerializer<SerializerImplementation>::template Deserialize<decltype(serializable_type::FieldAccessor<field_ind>::GetField(&obj))>(it->second);
 				serializable_type::FieldAccessor<field_ind>::SetField(&obj, field_value);
 			}
 		}

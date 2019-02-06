@@ -5,19 +5,46 @@
 
 namespace smps
 {
-	class 
-	class BaseTypeSerialization
+	namespace serializable_object_type
+	{
+		class BaseTypeSerializationType {};
+		class CollectionSerializationType {};
+		class PairSerializationType {};
+		class SMPSObjectSerializationType {};
+	}
+
+	serializable_object_type::SMPSObjectSerializationType CheckSMPSObjectGhostFunc(const SerializableField&);
+	serializable_object_type::BaseTypeSerializationType CheckSMPSObjectGhostFunc(...);
+
+	template<class ObjectType>
+	class SerializationTypeSelector
+	{
+	public:
+		typedef decltype(CheckSMPSObjectGhostFunc(std::declval<ObjectType>())) SerializationType;
+	};
+
+	template<class VectorContentType>
+	class SerializationTypeSelector<std::vector<VectorContentType>>
+	{
+	public:
+		typedef serializable_object_type::CollectionSerializationType SerializationType;
+	};
+
+	template<class MapKeyType, class MapValueType>
+	class SerializationTypeSelector<std::map<MapKeyType, MapValueType>>
+	{
+	public:
+		typedef serializable_object_type::CollectionSerializationType SerializationType;
+	};
+
+	template<class PairKeyType, class PairValueType>
+	class SerializationTypeSelector<std::pair<PairKeyType, PairValueType>>
+	{
+	public:
+		typedef serializable_object_type::PairSerializationType SerializationType;
+	};
 
 
-
-
-	typedef char Small;
-	class Big { char a[2]; };
-
-	Small SmallIfSerializableFieldImpl(const SerializableField&);
-	Big SmallIfSerializableFieldImpl(...);
-
-#define IS_SER_FIELD_IMPL(type) sizeof(SmallIfSerializableFieldImpl(std::declval<type>()))==sizeof(Small)
 
 	template<class SerializrAccumulator, class SerializationParser>
 	class Serializer
