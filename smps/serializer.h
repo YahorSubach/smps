@@ -5,6 +5,11 @@
 
 namespace smps
 {
+	class 
+	class BaseTypeSerialization
+
+
+
 
 	typedef char Small;
 	class Big { char a[2]; };

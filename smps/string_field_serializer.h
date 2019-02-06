@@ -4,7 +4,7 @@
 namespace smps
 {
 
-	template<class SerializerImplementation, CollectionSerializer>
+	template<class SerializerImplementation>
 	class StringFieldSerializer
 	{
 	public:
@@ -62,15 +62,15 @@ namespace smps
 			ss << "[";
 			for (Iter it = begin; it != end; it++)
 				ss << StringFieldSerializer::Serialize(*it) << ",";
-			ss<<"]"
-			return ss.;
-		}
-		template<class T>
-		static std::string Serialize(const std::vector<T>&)
-		{
-			
+			ss << "]";
+			return ss.str();
 		}
 
+		template<class T>
+		static std::string Serialize(const std::vector<T>& vec)
+		{
+			return Serialize(vec.begin(), vec.end());
+		}
 
 
 		template<class T>
@@ -81,6 +81,25 @@ namespace smps
 			ss >> res;
 			return res;
 		}
+
+
+		template<class T>
+		static std::vector<T> Deserialize(const std::string& ser_field)
+		{
+			int start_ind = 1;
+			int end_ind = 1;
+			std::vector<T> res;
+			for (; end_ind < ser_field.length() - 1; end_ind++)
+			{
+				if (ser_field[end_ind] == ',')
+				{
+					res.push_back(Deserialize(ser_field.substr(start_ind, end_ind - start_ind)));
+					start_ind = end_ind + 1;
+				}
+			}
+			return res;
+		}
+
 		template<>
 		static std::string Deserialize(const std::string& ser_field)
 		{
