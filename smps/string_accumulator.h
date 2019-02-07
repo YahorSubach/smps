@@ -8,7 +8,7 @@ namespace smps
 {
 
 	template<class StringSerializerImplementation, class StringConstantProvider>
-	class FieldCompositionStringAccumulator :public StringAccumulatorBase
+	class FieldCompositionStringAccumulator
 	{
 		bool is_empty;
 	public:
@@ -28,8 +28,76 @@ namespace smps
 		}
 	};
 
+
+	template<class StringSerializerImplementation, class StringConstantProvider, class FieldCompositionType>
+	class FieldCompositionStringTypedSplitter
+	{
+		FieldCompositionType result;
+		std::map<std::string, std::string> splitted_serialized_object;
+	public:
+		FieldCompositionStringTypedSplitter(std::string serialized_object)
+		{
+			std::string key;
+			std::string value;
+
+			int last_ind = 1;
+
+			int sub_obj_counter = 0;
+			bool is_str = false;
+
+			for (int str_ind = last_ind; str_ind < serialized_object.length() - 1; str_ind++)
+			{
+				if (serialized_object[str_ind] == '\"')
+					is_str = !is_str;
+
+				if (serialized_object[str_ind] == '{' || serialized_object[str_ind] == '[')
+					sub_obj_counter++;
+				if (serialized_object[str_ind] == '}' || serialized_object[str_ind] == ']')
+					sub_obj_counter--;
+
+
+				if (serialized_object[str_ind] == ':' && sub_obj_counter == 0 && !is_str)
+				{
+					key = serialized_object.substr(last_ind, str_ind - last_ind);
+					last_ind = str_ind + 1;
+				}
+				if (serialized_object[str_ind] == ',' && sub_obj_counter == 0 && !is_str)
+				{
+					value = serialized_object.substr(last_ind, str_ind - last_ind);
+					last_ind = str_ind + 1;
+					deser_map[key] = value;
+				}
+			}
+
+			if (last_ind < serialized_object.length() - 2)
+			{
+				value = serialized_object.substr(last_ind, serialized_object.length() - 1 - last_ind);
+				deser_map[key] = value;
+			}
+		}
+		template<int field_num>
+		void Restore()
+		{
+			FieldCompositionObjectType::FieldAccessor<field_num>::SetName(&result, splitted_serialized_object[FieldCompositionObjectType::FieldAccessor<field_num>::GetName()]);
+		}
+		FieldCompositionType Result() { return result; }
+	};
+
+	template<class StringSerializerImplementation, class StringConstantProvider>
+	class FieldCompositionStringSplitter
+	{
+	private:
+		FieldCompositionStringSplitter();
+	public:
+		template<class FieldCompositionType>
+		static FieldCompositionStringTypedSplitter<StringSerializerImplementation, StringConstantProvider, FieldCompositionType> GetTypedSplitter(std::string& serialized_object)
+		{
+			return FieldCompositionStringTypedSplitter<StringSerializerImplementation, StringConstantProvider, FieldCompositionType>(serialized_object);
+		}
+	};
+
 	template<class StringSerializerImplementation>
-	class CollectionStringAccumulator : public StringAccumulatorBase
+	class CollectionStringAccumulator
 	{
 		bool is_empty;
 	public:

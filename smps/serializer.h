@@ -10,10 +10,10 @@ namespace smps
 		class BaseTypeSerializationType {};
 		class CollectionSerializationType {};
 		class PairSerializationType {};
-		class SMPSObjectSerializationType {};
+		class FieldCompositionSerializationType {};
 	}
 
-	serializable_object_type::SMPSObjectSerializationType CheckSMPSObjectGhostFunc(const FieldComposition&);
+	serializable_object_type::FieldCompositionSerializationType CheckSMPSObjectGhostFunc(const FieldComposition&);
 	serializable_object_type::BaseTypeSerializationType CheckSMPSObjectGhostFunc(...);
 
 	template<class ObjectType>
@@ -46,7 +46,7 @@ namespace smps
 
 
 
-	template<class SerializerAccumulator, class SerializationParser>
+	/*template<class SerializerAccumulator, class SerializationParser>
 	class Serializer
 	{
 		template<int i>
@@ -97,7 +97,7 @@ namespace smps
 			return obj;
 		}
 	};
-
+*/
 
 	template<int i>
 	class RecursiveFieldsAggregator : public RecursiveFieldsAggregator<i - 1>
@@ -113,7 +113,7 @@ namespace smps
 		static void RestoreFieldsInSplitter(FieldCompositionSerializationSplitter& splitter)
 		{
 			RecursiveFieldsAggregator<i - 1>::RestoreFieldsInSplitter(splitter);
-			splitter.Restore<FieldCompositionObjectType, i>();
+			splitter.Restore<i>();
 		}
 	};
 
@@ -125,7 +125,7 @@ namespace smps
 		{
 		}
 		template<class FieldCompositionSerializationSplitter, class FieldCompositionObjectType>
-		static void RestoreFieldsInSplitter(FieldCompositionSerializationSplitter& splitter, const FieldCompositionObjectType& obj)
+		static void RestoreFieldsInSplitter(FieldCompositionSerializationSplitter& splitter)
 		{
 		}
 	};
@@ -150,24 +150,116 @@ namespace smps
 
 
 
-	template<class NativeTypeSerializer, class FieldCompositionSerializer, class CollectionAccumulator, class CollectionParser>
+	template<class CollectionSerializationAccumulator, class CollectionSerializationSplitter>
 	class CollectionSerializer
 	{
+	public:
+		template<class CollectionType>
+		static decltype(std::declval<CollectionSerializationAccumulator>.Result()) Serialize(CollectionType& collection)
+		{
+			CollectionSerializationAccumulator accum;
+			CollectionAggregator::ProvideFieldsToAccumulator(accum, object);
+			return accum.Result();
+		}
 
+		template<class CollectionType>
+		static CollectionType Deserialize(decltype(std::declval<CollectionSerializationAccumulator>().Result())& serialized_collection)
+		{
+			CollectionSerializationSplitter splitter;
+			CollectionAggregator::RestoreFieldsInSplitter(splitter);
+			return splitter.Result();
+		}
 	};
 
-	template<class NativeTypeSerializer, class CollectionSerializer, class FieldCompositionAccumulator, class FieldCompositionSerializer>
+	template<class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter>
 	class FieldCompositionSerializer
 	{
 	public:
 		template<class FieldCompositionObjectType>
-		static decltype(std::declval<FieldCompositionAccumulator>.Result()) Serialize(FieldCompositionObjectType& object)
+		static decltype(std::declval<FieldCompositionSerializationAccumulator>.Result()) Serialize(FieldCompositionObjectType& object)
 		{
-			FieldCompositionAccumulator accum;
+			FieldCompositionSerializationAccumulator accum;
 			RecursiveFieldsAggregator<FieldCompositionObjectType::FieldCount::value>::ProvideFieldsToAccumulator(accum, object);
 			return accum.Result();
 		}
 
+		template<class FieldCompositionObjectType>
+		static FieldCompositionObjectType Deserialize(decltype(std::declval<FieldCompositionSerializationAccumulator>.Result())& serialized_object)
+		{
+			FieldCompositionSerializationSplitter:: splitter;
+			RecursiveFieldsAggregator<FieldCompositionObjectType::FieldCount::value>::RestoreFieldsInSplitter(splitter);
+			return splitter.Result();
+		}
+	};
+
+
+	template<class SerializationType>
+	class AnySerializationTypeSerializer;
+
+	template<>
+	class AnySerializationTypeSerializer<serializable_object_type::BaseTypeSerializationType>
+	{
+	public:
+		template<class NativeTypeSerializer, class CollectionSerializationAccumulator, class CollectionSerializationSplitter, class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter, class NativeType>
+		static decltype(NativeTypeSerializer::Serialize(std::declval<NativeType>())) Serialize(NativeType& obj)
+		{
+			return NativeTypeSerializer::Serialize(obj);
+		}
+		template<class NativeTypeSerializer, class CollectionSerializationAccumulator, class CollectionSerializationSplitter, class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter, class NativeType>
+		static NativeType Deserialize(decltype(NativeTypeSerializer::Serialize(std::declval<NativeType>()))& serialized_obj)
+		{
+			return NativeTypeSerializer::Deserialize<NativeType>(serialized_obj);
+		}
+	};
+
+	template<>
+	class AnySerializationTypeSerializer<serializable_object_type::CollectionSerializationType>
+	{
+	public:
+		template<class NativeTypeSerializer, class CollectionSerializationAccumulator, class CollectionSerializationSplitter, class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter, class CollectionType>
+		static decltype(std::declval<CollectionSerializationAccumulator>().Result()) Serialize(CollectionType& collection)
+		{
+			return CollectionSerializer<CollectionSerializationAccumulator, CollectionSerializationSplitter>::Serialize(collection);
+		}
+		template<class NativeTypeSerializer, class CollectionSerializationAccumulator, class CollectionSerializationSplitter, class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter, class CollectionType>
+		static CollectionType Deserialize(decltype(std::declval<CollectionSerializationAccumulator>().Result())& serialized_collection)
+		{
+			return CollectionSerializer<CollectionSerializationAccumulator, CollectionSerializationSplitter>::Deserialize(serialized_collection);
+		}
+	};
+
+	template<>
+	class AnySerializationTypeSerializer<serializable_object_type::FieldCompositionSerializationType>
+	{
+	public:
+		template<class NativeTypeSerializer, class CollectionSerializationAccumulator, class CollectionSerializationSplitter, class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter, class FieldCompositionType>
+		static decltype(std::declval<FieldCompositionSerializationAccumulator>().Result()) Serialize(FieldCompositionType& field_composition)
+		{
+			return FieldCompositionSerializer<FieldCompositionSerializationAccumulator, FieldCompositionSerializationSplitter>::Serialize(collection);
+		}
+		template<class NativeTypeSerializer, class CollectionSerializationAccumulator, class CollectionSerializationSplitter, class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter, class FieldCompositionType>
+		static FieldCompositionType Deserialize(decltype(std::declval<FieldCompositionSerializationAccumulator>().Result())& serialized_field_composition)
+		{
+			return FieldCompositionSerializer<FieldCompositionSerializationAccumulator, FieldCompositionSerializationSplitter>::Deserialize(serialized_field_composition);
+		}
+	};
+
+
+
+	template<class NativeTypeSerializer, class CollectionSerializationAccumulator, class CollectionSerializationSplitter, class FieldCompositionSerializationAccumulator, class FieldCompositionSerializationSplitter>
+	class Serializer
+	{
+	public:
+		template<class Type>
+		static decltype(std::declval<FieldCompositionSerializationAccumulator>().Result()) Serialize(Type& obj)
+		{
+			return AnySerializationTypeSerializer<SerializationTypeSelector<Type>::SerializationType>::Serialize<NativeTypeSerializer, CollectionSerializationAccumulator, CollectionSerializationSplitter, FieldCompositionSerializationAccumulator, FieldCompositionSerializationSplitter, Type>(obj);
+		}
+		template<class Type>
+		static Type Deserialize(decltype(std::declval<FieldCompositionSerializationAccumulator>().Result())& serialized_obj)
+		{
+			return AnySerializationTypeSerializer<SerializationTypeSelector<Type>::SerializationType>::Deserialize<NativeTypeSerializer, CollectionSerializationAccumulator, CollectionSerializationSplitter, FieldCompositionSerializationAccumulator, FieldCompositionSerializationSplitter, Type>(serialized_obj);
+		}
 	};
 
 }
