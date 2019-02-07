@@ -4,8 +4,51 @@
 #include "Serializer.h"
 #include "string_field_Serializer.h"
 
-namespace smps 
+namespace smps
 {
+
+	template<class StringSerializerImplementation, class StringConstantProvider>
+	class FieldCompositionStringAccumulator :public StringAccumulatorBase
+	{
+		bool is_empty;
+	public:
+
+		template<class FieldCompositionObjectType, int field_num>
+		void Add(FieldCompositionObjectType& obj)
+		{
+			if (!is_empty)
+				result += StringConstantProvider::separator;
+			result += StringSerializerImplementation::Serialize(FieldCompositionObjectType::FieldAccessor<field_num>::GetName());
+			result += StringConstantProvider::associator;
+			result += StringSerializerImplementation::Serialize(FieldCompositionObjectType::FieldAccessor<field_num>::GetValue());
+		}
+		std::string Result()
+		{
+			return StringConstantProvider::prefix + result + StringConstantProvider::postfix;
+		}
+	};
+
+	template<class StringSerializerImplementation>
+	class CollectionStringAccumulator : public StringAccumulatorBase
+	{
+		bool is_empty;
+	public:
+
+		template<class ValueType>
+		void Add(ValueType& value)
+		{
+			if (!is_empty)
+				result += StringConstantProvider::separator;
+			result += StringSerializerImplementation::Serialize(value);
+		}
+		std::string Result()
+		{
+			return StringConstantProvider::prefix + result + StringConstantProvider::postfix;
+		}
+	};
+
+
+
 
 	template<class SerializerImplementation>
 	class StringAccumulator

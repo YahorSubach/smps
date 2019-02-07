@@ -9,7 +9,7 @@ namespace smps
 	namespace class_wrappers
 	{
 		template<class FirstType, class SecondType>
-		class pair :public smps::SerializableField, public std::pair<FirstType, SecondType>
+		class pair :public smps::FieldComposition, public std::pair<FirstType, SecondType>
 		{
 		public:
 			pair() {}

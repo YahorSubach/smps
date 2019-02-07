@@ -50,8 +50,10 @@ class FieldAccessor<i>\
 
 namespace smps
 {
-	class SerializableField
+	class FieldComposition
 	{};
+
+	typedef FieldComposition Serializable;
 }
 
 #endif  // SMPS_SERIALIZABLE_H_
