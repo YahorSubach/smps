@@ -4,38 +4,71 @@
 
 namespace smps
 {
-	class NativeTypeStringSerializer
+	namespace string_serializer
 	{
-		template<class T>
-		static std::string Serialize(const T& field)
+		template<class StringAccumulator>
+		class BaseClassSerializer
 		{
-			return std::to_string(field);
-		}
-		template<>
-		static std::string Serialize(const std::string& field)
+		public:
+			template<class Type>
+			static void Serialize(StringAccumulator& accum, const Type& obj)
+			{
+				accum += std::to_string(obj);
+			}
+
+			template<>
+			static void Serialize(StringAccumulator& accum, const std::string& obj)
+			{
+				accum += "\"";
+				accum += obj;
+				accum += "\"";
+			}
+		};
+
+		class StringIterpreter
 		{
-			return "\"" + field + "\"";
-		}
+		public:
+			typedef std::string ResultType;
+		};
 
 
-		template<class T>
-		static T Deserialize(const std::string& ser_field)
+		class IndentionStringAccumulator
 		{
-			std::istringstream  ss(ser_field);
-			T res;
-			ss >> res;
-			return res;
-		}
+		private:
+			std::string result_;
+		public:
+			typedef std::string ResultType;
+			int indention_size = 0;
+			void  operator+=(std::string& ser_obj)
+			{
+				result_ += ser_obj;
+			}
+			void  operator+=(const char* ser_obj)
+			{
+				result_ += ser_obj;
+			}
 
-		template<>
-		static std::string Deserialize(const std::string& ser_field)
+			friend class BaseClassIndentionSerializer;
+		};
+
+		class BaseClassIndentionSerializer
 		{
-			return ser_field.substr(1, ser_field.length() - 2);
-		}
-	};
+		public:
+			template<class Type>
+			static void Serialize(IndentionStringAccumulator& accum, const Type& obj)
+			{
+				accum.result_ += std::to_string(obj);
+			}
+
+			template<>
+			static void Serialize(IndentionStringAccumulator& accum, const std::string& obj)
+			{
+				accum += "\"";
+				accum.result_ += obj;
+				accum += "\"";
+			}
+		};
+
+	}
 }
-
-
-
-
 #endif //SMPS_STRING_SERIALIZER_H_

@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="json.h" />
+    <ClInclude Include="recursive_serializer.h" />
     <ClInclude Include="serializable.h" />
     <ClInclude Include="smps_class_wrappers.h" />
     <ClInclude Include="string_accumulator.h" />
