@@ -86,6 +86,12 @@ namespace smps
 		{
 			Applicator::SerializeBaseType(accum, obj);
 		}
+
+		template<class Applicator, class Type>
+		static void Deserialize(typename Applicator::PresentorType& presentor, Type& obj)
+		{
+			Applicator::DeserializeBaseType(presentor, obj);
+		}
 	};
 
 	template<>
@@ -97,6 +103,12 @@ namespace smps
 		{
 			Applicator::SerializeCollection(accum, obj);
 		}
+
+		template<class Applicator, class Type>
+		static void Deserialize(typename Applicator::PresentorType& presentor, Type& obj)
+		{
+			Applicator::DeserializeCollection(presentor, obj);
+		}
 	};
 
 	template<>
@@ -107,6 +119,12 @@ namespace smps
 		static void Serialize(typename Applicator::AccumulatorType& accum, Type& obj)
 		{
 			Applicator::SerializeFieldsContainer(accum, obj);
+		}
+
+		template<class Applicator, class Type>
+		static void Deserialize(typename Applicator::PresentorType& presentor, Type& obj)
+		{
+			Applicator::DeserializeFieldsContainer(presentor, obj);
 		}
 	};
 
@@ -121,6 +139,13 @@ namespace smps
 		{
 			AnySerializationTypeSerializer<SerializationTypeSelector<ConstAndRefRemover<Type>::ClearType>::SerializationType>::template Serialize<Applicator, Type>(accum, obj);
 		}
+
+		template<class Type>
+		static void Serialize(typename Applicator::PresentorType& presentor, Type& obj)
+		{
+			AnySerializationTypeSerializer<SerializationTypeSelector<ConstAndRefRemover<Type>::ClearType>::SerializationType>::template Deserialize<Applicator, Type>(presentor, obj);
+		}
+
 	};
 
 }

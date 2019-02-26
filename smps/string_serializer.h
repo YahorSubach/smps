@@ -6,7 +6,7 @@ namespace smps
 {
 	namespace string_serializer
 	{
-		template<class StringAccumulator>
+		template<class StringAccumulator, class StringPresentor>
 		class BaseClassSerializer
 		{
 		public:
@@ -14,6 +14,20 @@ namespace smps
 			static void Serialize(StringAccumulator& accum, const Type& obj)
 			{
 				accum += std::to_string(obj);
+			}
+
+			template<>
+			static void Serialize(StringAccumulator& accum, const std::string& obj)
+			{
+				accum += "\"";
+				accum += obj;
+				accum += "\"";
+			}
+
+			template<class Type>
+			static void Deserialize(StringPresentor& presentor, const Type& obj)
+			{
+				presentor.Read()
 			}
 
 			template<>

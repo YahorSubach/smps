@@ -155,7 +155,6 @@
     <ClInclude Include="string_accumulator.h" />
     <ClInclude Include="serializer.h" />
     <ClInclude Include="smps_common.h" />
-    <ClInclude Include="string_field_serializer.h" />
     <ClInclude Include="string_serializer.h" />
   </ItemGroup>
   <ItemGroup>

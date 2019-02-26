@@ -30,9 +30,6 @@
     <ClInclude Include="string_accumulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="string_field_serializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="smps_class_wrappers.h">
       <Filter>Header Files</Filter>
     </ClInclude>

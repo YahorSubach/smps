@@ -18,7 +18,7 @@ class FieldAccessor<i>\
 	public:\
 		static std::string GetName(){return std::string(#name);}\
 		template<class T>\
-		static const decltype(name)& GetField(T* obj_ptr) {return obj_ptr->name;} \
+		static decltype(name)& GetField(T* obj_ptr) {return obj_ptr->name;} \
 		template<class T>\
 		static void SetField(T* obj_ptr, decltype(name)& value){ obj_ptr->name = value;}\
 };\

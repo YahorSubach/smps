@@ -12,15 +12,15 @@ namespace smps
 		class JSONCollectionDecorator
 		{
 		public:
-			static void BeginCollection(std::string& accum)
+			static void DecorateCollectionBegin(std::string& accum)
 			{
 				accum += "[";
 			}
-			static void EndCollection(std::string& accum)
+			static void DecorateCollectionEnd(std::string& accum)
 			{
 				accum += "]";
 			}
-			static void SplitCollectionElements(std::string& accum)
+			static void DecorateCollectionElementSplit(std::string& accum)
 			{
 				accum += ",";
 			}
@@ -29,19 +29,19 @@ namespace smps
 		class JSONFieldsContainerDecorator
 		{
 		public:
-			static void BeginContainer(std::string& accum)
+			static void DecorateContainerBegin(std::string& accum)
 			{
 				accum += "{";
 			}
-			static void EndContainer(std::string& accum)
+			static void DecorateContainerEnd(std::string& accum)
 			{
 				accum += "}";
 			}
-			static void SplitContainerElement(std::string& accum)
+			static void DecorateContainerElementSplit(std::string& accum)
 			{
 				accum += ",";
 			}
-			static void RegisterField(std::string& accum, int field_index, std::string& field_name)
+			static void DecorateFieldHeader(std::string& accum, int field_index, std::string& field_name)
 			{
 				accum += field_name;
 				accum += ":";
@@ -52,7 +52,7 @@ namespace smps
 		class JSONFormattedCollectionDecorator
 		{
 		public:
-			static void BeginCollection(FormattedAccum& accum)
+			static void DecorateCollectionBegin(FormattedAccum& accum)
 			{
 				accum += "\n";
 				accum.indention_size++;
@@ -64,7 +64,7 @@ namespace smps
 				for (size_t i = 0; i < accum.indention_size; i++)
 					accum += "\t";
 			}
-			static void EndCollection(FormattedAccum& accum)
+			static void DecorateCollectionEnd(FormattedAccum& accum)
 			{
 				accum += "\n";
 				accum.indention_size--;
@@ -76,7 +76,7 @@ namespace smps
 				for (size_t i = 0; i < accum.indention_size; i++)
 					accum += "\t";
 			}
-			static void SplitCollectionElements(FormattedAccum& accum)
+			static void DecorateCollectionElementSplit(FormattedAccum& accum)
 			{
 				accum += ",";
 				accum += "\n";
@@ -88,7 +88,7 @@ namespace smps
 		class JSONFormattedFieldsContainerDecorator
 		{
 		public:
-			static void BeginContainer(FormattedAccum& accum)
+			static void DecorateContainerBegin(FormattedAccum& accum)
 			{
 				accum += "{";
 				accum.indention_size++;
@@ -96,7 +96,7 @@ namespace smps
 				for (size_t i = 0; i < accum.indention_size; i++)
 					accum += "\t";
 			}
-			static void EndContainer(FormattedAccum& accum)
+			static void DecorateContainerEnd(FormattedAccum& accum)
 			{
 				accum += "\n";
 				accum.indention_size--;
@@ -104,14 +104,14 @@ namespace smps
 					accum += "\t";
 				accum += "}";
 			}
-			static void SplitContainerElement(FormattedAccum& accum)
+			static void DecorateContainerElementSplit(FormattedAccum& accum)
 			{
 				accum += ",";
 				accum += "\n";
 				for (size_t i = 0; i < accum.indention_size; i++)
 					accum += "\t";
 			}
-			static void RegisterField(FormattedAccum& accum, int field_index, std::string& field_name)
+			static void DecorateFieldHeader(FormattedAccum& accum, int field_index, std::string& field_name)
 			{
 				accum += field_name;
 				accum += ":";
