@@ -6,6 +6,25 @@ namespace smps
 {
 	namespace string_serializer
 	{
+		class StringUtil
+		{
+		public:
+			static std::string_view Trim(std::string_view original)
+			{
+				int begin_cnt = 0;
+				for (; begin_cnt < original.length() && (original[begin_cnt] == ' ' || original[begin_cnt] == '\t'); begin_cnt++);
+
+				int end_cnt = 0;
+				for (; end_cnt < original.length() && (original.length() - end_cnt > 0) && (original[original.length() - end_cnt - 1] == ' ' || original[original.length() - end_cnt - 1] == '\t'); end_cnt++);
+
+				original.remove_prefix(begin_cnt);
+				original.remove_suffix(end_cnt);
+
+				return original;
+			}
+		};
+
+
 		template<class StringAccumulator, class StringPresentor>
 		class BaseClassSerializer
 		{
@@ -27,15 +46,21 @@ namespace smps
 			template<class Type>
 			static void Deserialize(StringPresentor& presentor, const Type& obj)
 			{
-				presentor.Read()
+				std::string_view sview = presentor.Read();
+				std::stringstream ss(sview);
+				ss >> obj;
 			}
 
 			template<>
-			static void Serialize(StringAccumulator& accum, const std::string& obj)
+			static void Deserialize(StringPresentor& accum, const std::string& obj)
 			{
-				accum += "\"";
-				accum += obj;
-				accum += "\"";
+				std::string_view sview = StringUtil::Trim(presentor.Read());
+
+				assert(sview.front() == sview.back() == '"');
+				sview.remove_prefix(1);
+				sview.remove_suffix(1);
+
+				obj = sview;
 			}
 		};
 

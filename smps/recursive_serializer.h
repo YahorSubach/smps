@@ -114,7 +114,7 @@ namespace smps
 			BaseTypeSerializer::Deserialize(presentor, obj);
 		}
 		template<class CollectionType>
-		static void SerializeCollection(Presentor& presentor, CollectionType& collection)
+		static void DeserializeCollection(Presentor& presentor, CollectionType& collection)
 		{
 			CollectionDecorator::UndecorateCollectionBegin(presentor);
 			

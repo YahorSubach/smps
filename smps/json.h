@@ -7,6 +7,89 @@ namespace smps
 {
 	namespace json
 	{
+
+		struct JSONStringPresentor
+		{
+		protected:
+			const std::string& str_;
+			int index_;
+			enum ReadMode
+			{
+				UNKNOWN,
+				VALUE,
+				STRING,
+				COLLECTION,
+				SUB_OBJECT
+			};
+		public:
+			JSONStringPresentor(const std::string& str) :str_(str), index_(0) {}
+
+			bool IsEnd()
+			{
+				return index_ >= str_.length();
+			}
+
+			std::string_view Read()
+			{
+				int start_index = index_;
+				int counter = 0;
+				ReadMode read_mode = ReadMode::UNKNOWN;
+				for (;; index_++)
+				{
+					assert(index_ < str_.length());
+
+					if (str_[index_] == ' ' || str_[index_] == '\t')
+						continue;
+
+					if (str_[index_] == '"')
+					{
+						if (read_mode == ReadMode::UNKNOWN)
+						{
+							start_index = index_;
+							read_mode = ReadMode::STRING;
+						}
+						else if (read_mode == ReadMode::STRING)
+						{
+							index_++;
+							return std::string_view(str_.c_str() + start_index, (size_t)(index_ - start_index));
+						}
+					}
+					else if (str_[index_] == '[' && )
+					{
+						if (read_mode == ReadMode::UNKNOWN)
+						{
+							read_mode = ReadMode::COLLECTION;
+						}
+						else if(read_mode == ReadMode::COLLECTION)
+						start_index = index_;
+					}
+					else if (str_[index_] == ']' && read_mode == ReadMode::COLLECTION)
+					{
+						index_++;
+						return std::string_view(str_.c_str() + start_index, (size_t)(index_ - start_index));
+					}
+					else if (str_[index_] == '{' && read_mode == ReadMode::UNKNOWN)
+					{
+						read_mode = ReadMode::SUB_OBJECT;
+						start_index = index_;
+					}
+					else if (str_[index_] == '}' && read_mode == ReadMode::SUB_OBJECT)
+					{
+						index_++;
+						return std::string_view(str_.c_str() + start_index, (size_t)(index_ - start_index));
+					}
+					else if (str_[index_] == ',' && read_mode == ReadMode::VALUE)
+					{
+						index_++;
+						return std::string_view(str_.c_str() + start_index, (size_t)(index_ - start_index - 1));
+					}
+					else if (read_mode == ReadMode::UNKNOWN)
+						read_mode = ReadMode::VALUE;
+				}
+			}
+
+		};
+
 		typedef smps::string_serializer::IndentionStringAccumulator FormattedAccum;
 
 		class JSONCollectionDecorator
@@ -17,6 +100,19 @@ namespace smps
 				accum += "[";
 			}
 			static void DecorateCollectionEnd(std::string& accum)
+			{
+				accum += "]";
+			}
+			static void DecorateCollectionElementSplit(std::string& accum)
+			{
+				accum += ",";
+			}
+			
+			static void UndecorateCollectionBegin(JSONStringPresentor& presentor)
+			{
+				presentor.Read();
+			}
+			static void UndecorateCollectionEnd(JSONStringPresentor& accum)
 			{
 				accum += "]";
 			}
@@ -119,9 +215,11 @@ namespace smps
 		};
 
 
+		
 
-		typedef ExplicitRecursiveSerializerApplicator<std::string, string_serializer::StringIterpreter, string_serializer::BaseClassSerializer<std::string>, JSONCollectionDecorator, JSONFieldsContainerDecorator> JSONApplicator;
-		typedef ExplicitRecursiveSerializerApplicator<FormattedAccum, string_serializer::StringIterpreter, string_serializer::BaseClassIndentionSerializer, JSONFormattedCollectionDecorator, JSONFormattedFieldsContainerDecorator> JSONFormattedApplicator;
+
+		typedef ExplicitRecursiveSerializerApplicator<std::string, string_serializer::StringIterpreter, string_serializer::BaseClassSerializer<std::string, std::string>, JSONCollectionDecorator, JSONFieldsContainerDecorator> JSONApplicator;
+		//typedef ExplicitRecursiveSerializerApplicator<FormattedAccum, string_serializer::StringIterpreter, string_serializer::BaseClassIndentionSerializer, JSONFormattedCollectionDecorator, JSONFormattedFieldsContainerDecorator> JSONFormattedApplicator;
 		typedef Serializer<JSONApplicator> JSONSerializer;
 		typedef Serializer<JSONFormattedApplicator> JSONFormattedSerializer;
 	}

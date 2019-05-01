@@ -7,5 +7,6 @@
 #include <string>
 #include <string_view>
 #include <sstream>
+#include <cassert>   
 
 #endif  // SMPS_COMMON_H_
