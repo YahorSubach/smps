@@ -42,14 +42,6 @@ namespace smps
 				dest.append("\"");
 			}
 
-			template<int N>
-			static void Serialize(SerializationDestination& dest, char const obj[N])
-			{
-				dest.append("\"");
-				dest.append(obj);
-				dest.append("\"");
-			}
-
 
 			template<class Type>
 			static void Deserialize(DeserializationSource& src, Type&& obj)
@@ -69,12 +61,6 @@ namespace smps
 
 				obj = sview;
 			}
-		};
-
-		class StringIterpreter
-		{
-		public:
-			typedef std::string ResultType;
 		};
 
 

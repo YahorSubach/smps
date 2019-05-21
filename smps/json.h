@@ -8,6 +8,13 @@ namespace smps
 {
 	namespace json
 	{
+		template<class Serializer>
+		class JSONCollectionSerializer
+		{
+
+		};
+
+
 		using GenSer = string_serializer::GeneralSerializer<std::string, std::string>;
 		using JSONSerializer = Serializer< GenSer, GenSer, GenSer, GenSer>;
 
