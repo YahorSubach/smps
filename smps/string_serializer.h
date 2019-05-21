@@ -24,37 +24,44 @@ namespace smps
 			}
 		};
 
-
-		template<class StringAccumulator, class StringPresentor>
-		class BaseClassSerializer
+		template<class SerializationDestination, class DeserializationSource>
+		class GeneralSerializer
 		{
 		public:
-			template<class Type>
-			static void Serialize(StringAccumulator& accum, const Type& obj)
+			template< class Type>
+			static void Serialize(SerializationDestination& dest, Type&& obj)
 			{
-				accum += std::to_string(obj);
+				dest.append(std::to_string(obj));
 			}
 
 			template<>
-			static void Serialize(StringAccumulator& accum, const std::string& obj)
+			static void Serialize(SerializationDestination& dest, const std::string&& obj)
 			{
-				accum += "\"";
-				accum += obj;
-				accum += "\"";
+				dest.append("\"");
+				dest.append(obj);
+				dest.append("\"");
 			}
 
-			template<class Type>
-			static void Deserialize(StringPresentor& presentor, const Type& obj)
+			template<int N>
+			static void Serialize(SerializationDestination& dest, char const obj[N])
 			{
-				std::string_view sview = presentor.Read();
-				std::stringstream ss(sview);
+				dest.append("\"");
+				dest.append(obj);
+				dest.append("\"");
+			}
+
+
+			template<class Type>
+			static void Deserialize(DeserializationSource& src, Type&& obj)
+			{
+				std::stringstream ss(src);
 				ss >> obj;
 			}
 
 			template<>
-			static void Deserialize(StringPresentor& accum, const std::string& obj)
+			static void Deserialize(DeserializationSource& src, const std::string&& obj)
 			{
-				std::string_view sview = StringUtil::Trim(presentor.Read());
+				std::string_view sview = StringUtil::Trim(src);
 
 				assert(sview.front() == sview.back() == '"');
 				sview.remove_prefix(1);
@@ -70,43 +77,6 @@ namespace smps
 			typedef std::string ResultType;
 		};
 
-
-		class IndentionStringAccumulator
-		{
-		private:
-			std::string result_;
-		public:
-			typedef std::string ResultType;
-			int indention_size = 0;
-			void  operator+=(std::string& ser_obj)
-			{
-				result_ += ser_obj;
-			}
-			void  operator+=(const char* ser_obj)
-			{
-				result_ += ser_obj;
-			}
-
-			friend class BaseClassIndentionSerializer;
-		};
-
-		class BaseClassIndentionSerializer
-		{
-		public:
-			template<class Type>
-			static void Serialize(IndentionStringAccumulator& accum, const Type& obj)
-			{
-				accum.result_ += std::to_string(obj);
-			}
-
-			template<>
-			static void Serialize(IndentionStringAccumulator& accum, const std::string& obj)
-			{
-				accum += "\"";
-				accum.result_ += obj;
-				accum += "\"";
-			}
-		};
 
 	}
 }
