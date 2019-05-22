@@ -158,6 +158,7 @@
     <ClInclude Include="serializer.h" />
     <ClInclude Include="smps_common.h" />
     <ClInclude Include="string_serializer.h" />
+    <ClInclude Include="wrap_serializer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="smps.cpp">
