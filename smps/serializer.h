@@ -103,13 +103,13 @@ namespace smps
 	{
 	public:
 		template<class Destination, class Type>
-		static void Serialize(Destination&& dest, Type&& obj)
+		static void Serialize(Destination&& dest, const Type& obj)
 		{
 			DecisionSerializer<SerializationTypeSelector<ClearType<Type>>::SerializationType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer>::Serialize(dest, obj);
 		}
 
 		template<class Source, class Type>
-		static void Deserialize(Source&& src, Type&& obj)
+		static void Deserialize(Source&& src, const Type& obj)
 		{
 			DecisionSerializer<SerializationTypeSelector<ClearType<Type>>::SerializationType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer>::Deserialize(src, obj);
 		}

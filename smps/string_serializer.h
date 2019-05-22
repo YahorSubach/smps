@@ -22,6 +22,49 @@ namespace smps
 
 				return original;
 			}
+
+			static std::string Escape(const std::string& str)
+			{
+				std::string res;
+				for (char c : str)
+				{
+					switch (c)
+					{
+					case '\"':
+						res += '\"';
+						break;
+					default:
+						res += c;
+						break;
+					}
+				}
+				return res;
+			}
+
+			static std::string Unescape(const std::string& str)
+			{
+				std::string res;
+				char last_char = '\0';
+				bool begin = true;
+				for (char c : str)
+				{
+					switch (c)
+					{
+					case '"':
+						if (last_char == '\"')
+							break;
+					default:
+						if (!begin)
+							res += last_char;
+						break;
+					}
+					last_char = c;
+					begin = false;
+				}
+				if (!begin)
+					res += last_char;
+				return res;
+			}
 		};
 
 		template<class SerializationDestination, class DeserializationSource>
@@ -35,18 +78,10 @@ namespace smps
 			}
 
 			template<>
-			static void Serialize(SerializationDestination& dest, const std::string&& obj)
+			static void Serialize(SerializationDestination& dest, const std::string& obj)
 			{
 				dest.append("\"");
-				dest.append(obj);
-				dest.append("\"");
-			}
-
-			template<int N>
-			static void Serialize(SerializationDestination& dest, char const obj[N])
-			{
-				dest.append("\"");
-				dest.append(obj);
+				dest.append(StringUtil::Escape(obj));
 				dest.append("\"");
 			}
 
@@ -54,29 +89,19 @@ namespace smps
 			template<class Type>
 			static void Deserialize(DeserializationSource& src, Type&& obj)
 			{
-				std::stringstream ss(src);
+				std::stringstream ss(src.Read());
 				ss >> obj;
 			}
 
 			template<>
 			static void Deserialize(DeserializationSource& src, const std::string&& obj)
 			{
-				std::string_view sview = StringUtil::Trim(src);
 
-				assert(sview.front() == sview.back() == '"');
-				sview.remove_prefix(1);
-				sview.remove_suffix(1);
-
-				obj = sview;
+				assert(src.Read() == "\"");
+				obj = StringUtil::Unescape(src.read().value);
+				assert(src.Read() == "\"");
 			}
 		};
-
-		class StringIterpreter
-		{
-		public:
-			typedef std::string ResultType;
-		};
-
 
 	}
 }
