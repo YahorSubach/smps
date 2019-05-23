@@ -18,9 +18,9 @@ class FieldAccessor<i>\
 	public:\
 		static std::string GetName(){return std::string(#name);}\
 		template<class T>\
-		static decltype(name)& GetField(T* obj_ptr) {return obj_ptr->name;} \
+		static const decltype(name)& GetField(const T& obj) {return obj.name;} \
 		template<class T>\
-		static void SetField(T* obj_ptr, decltype(name)& value){ obj_ptr->name = value;}\
+		static void SetField(T& obj, const decltype(name)& value){ obj.name = value;}\
 };\
 
 #define SMPS_FIELD_EXT(i, name, getter, setter)template<> \

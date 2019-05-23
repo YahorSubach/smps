@@ -30,9 +30,9 @@ namespace smps
 				{
 					switch (c)
 					{
-					case '\"':
-						res += '\"';
-						break;
+					case '\\':
+					case '"':
+						res += '\\';
 					default:
 						res += c;
 						break;
@@ -50,6 +50,7 @@ namespace smps
 				{
 					switch (c)
 					{
+					case '\\':
 					case '"':
 						if (last_char == '\"')
 							break;
@@ -87,18 +88,19 @@ namespace smps
 
 
 			template<class Type>
-			static void Deserialize(DeserializationSource& src, Type&& obj)
+			static void Deserialize(const DeserializationSource& src, Type& obj)
 			{
-				std::stringstream ss(src.Read());
+				std::stringstream ss;
+				ss << src.Read();
 				ss >> obj;
 			}
 
 			template<>
-			static void Deserialize(DeserializationSource& src, const std::string&& obj)
+			static void Deserialize(const DeserializationSource& src, std::string& obj)
 			{
 
 				assert(src.Read() == "\"");
-				obj = StringUtil::Unescape(src.read().value);
+				obj = StringUtil::Unescape(src.Read().value);
 				assert(src.Read() == "\"");
 			}
 		};
