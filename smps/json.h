@@ -4,6 +4,7 @@
 //#include "recursive_serializer.h"
 #include "serializer.h"
 #include "string_serializer.h"
+#include "wrap_serializer.h"
 namespace smps
 {
 	namespace json
@@ -27,7 +28,15 @@ namespace smps
 
 			JSONBlockReader(const std::string& str) :str_view_(std::string_view(str.c_str(), str.length())), index_(0) {}
 
-			const std::string_view& value() { return str_view_; }
+			bool Validate(const char& c)
+			{
+				for (; index_ < str_view_.length(); index_++)
+				{
+					if (!(str_view_[index_] == ' ' || str_view_[index_] == '\t'))
+						return c == str_view_[index_];
+				}
+				return false;
+			}
 
 			std::string_view Read()
 			{
@@ -160,8 +169,61 @@ namespace smps
 		};
 
 
+		class JSONWrapper
+		{
+		public:
+			template <class SerializationDestination, class DeserializationSource>
+			static void WrapCollectionBegin(SerializationDestination& dst)
+			{
+				dst.append('[');
+			}
+			template <class SerializationDestination, class DeserializationSource>
+			static bool UnwrapCollectionBegin(DeserializationSource& src)
+			{
+				if (src.Validate('['))
+				{
+					src.Read();
+					return true;
+				}
+			}
+
+			template <class SerializationDestination, class DeserializationSource>
+			static void WrapCollectionDelimiter(SerializationDestination& dst)
+			{
+				dst.append(',');
+			}
+			template <class SerializationDestination, class DeserializationSource>
+			static bool UnwrapCollectionDelimiter(DeserializationSource& src)
+			{
+				if (src.Validate(','))
+				{
+					src.Read();
+					return true;
+				}
+			}
+
+			template <class SerializationDestination, class DeserializationSource>
+			static void WrapCollectionEnd(SerializationDestination& dst)
+			{
+				dst.append(',');
+			}
+			template <class SerializationDestination, class DeserializationSource>
+			static bool UnwrapCollectionEnd(DeserializationSource& src)
+			{
+				if (src.Validate(','))
+				{
+					src.Read();
+					return true;
+				}
+			}
+
+		};
+
+
+
 		using GenSer = string_serializer::GeneralSerializer<std::string, JSONBlockReader>;
-		using JSONSerializer = Serializer< GenSer, GenSer, GenSer, GenSer>;
+		class JSONSerializer;
+		using JSONSerializer = Serializer< GenSer, GenSer, smps::wrap_serializer::CollectionSerializer<JSONWrapper,StlCollectionAddProvider, JSONSerializer>, GenSer>;
 
 		//	struct JSONStringPresentor
 		//	{

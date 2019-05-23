@@ -2,21 +2,14 @@
 #define SMPS_SERIALIZER_H_
 
 #include "serializable.h"
+#include "stl_collections_serialization.h"
 
 namespace smps
 {
 	template<typename T>
 	using ClearType = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
 
-	namespace serializable_object_type
-	{
-		class GeneralType {};
-		class SpecialType {};
-		class CollectionType {};
-		class SMPSerializableType {};
-	}
-
-	serializable_object_type::SMPSerializableType CheckSMPSObjectGhostFunc(const SMPSerializable&);
+	serializable_object_type::SMPSerializableType CheckSMPSObjectGhostFunc(SMPSerializable);
 	serializable_object_type::GeneralType CheckSMPSObjectGhostFunc(...);
 
 	template<class ObjectType>

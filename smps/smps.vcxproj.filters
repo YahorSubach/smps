@@ -42,6 +42,9 @@
     <ClInclude Include="wrap_serializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stl_collections_serialization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="smps.cpp">

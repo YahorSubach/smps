@@ -7,13 +7,13 @@ namespace smps
 {
 	namespace wrap_serializer
 	{
-		template<class WrapperSpec, class AddToCollectionsProvider, class Serializer>
+		template<class Wrapper, class AddToCollectionsProvider, class Serializer>
 		class CollectionSerializer
 		{
 			template<class SerializationDestination, class Type>
-			static void Serialize(SerializationDestination&& dest, Type&& obj)
+			static void Serialize(SerializationDestination&& dest, const Type& obj)
 			{
-				dest.append(WrapperSpec::collection_begin);
+				Wrapper::WrapCollectionBegin(dest);
 				auto it = obj.cbegin();
 				if (it != obj.cend())
 				{
@@ -21,29 +21,28 @@ namespace smps
 					it++;
 					for (; it != obj.cend(); it++)
 					{
-						dest.append(WrapperSpec::collection_delimiter);
+						Wrapper::WrapCollectionDelimiter(dest);
 						Serializer::Serialize(dest, *it);
 					}
-
-					dest.append(WrapperSpec::collection_end);
 				}
 				dest.append(WrapperSpec::collection_end);
+				Wrapper::WrapCollectionEnd(dest);
 			}
 
 
 			template<class DeserializationSource, class Type>
-			static void Deserialize(DeserializationSource&& src, Type&& obj)
+			static void Deserialize(DeserializationSource& src, Type& obj)
 			{
-				assert(src.GetSpec() == WrapperSpec::collection_begin);
-				auto item = src.GetValue();
-				Type::value_type des_item;
-				while (item != WrapperSpec::empty)
+				Wrapper::UnwrapCollectionBegin(src);
+				typename Type::value_type item;
+				while (true)
 				{
-					Serializer::Deserialize(item, des_item);
-					AddToCollectionsProvider::Add(obj, des_item);
-					auto spec = src.GetSpec();
-					assert(spec == WrapperSpec::collection_delimiter || spec == WrapperSpec::collection_end);
+					Serializer::Deserialize(src, item);
+					AddToCollectionsProvider::Add(obj, item);
+					if (!Wrapper::UnwrapCollectionDelimiter(src))
+						break;
 				}
+				Wrapper::UnwrapCollectionEnd(src);
 			}
 		};
 	}

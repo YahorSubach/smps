@@ -154,6 +154,7 @@
     <ClInclude Include="recursive_serializer.h" />
     <ClInclude Include="serializable.h" />
     <ClInclude Include="smps_class_wrappers.h" />
+    <ClInclude Include="stl_collections_serialization.h" />
     <ClInclude Include="string_accumulator.h" />
     <ClInclude Include="serializer.h" />
     <ClInclude Include="smps_common.h" />

@@ -54,6 +54,14 @@ namespace smps
 	{};
 
 	typedef SMPSerializable Serializable;
+
+	namespace serializable_object_type
+	{
+		class GeneralType {};
+		class SpecialType {};
+		class CollectionType {};
+		class SMPSerializableType {};
+	}
 }
 
 #endif  // SMPS_SERIALIZABLE_H_
