@@ -50,17 +50,17 @@ class FieldAccessor<i>\
 
 namespace smps
 {
-	class SMPSerializable
+	class Serializable
 	{};
 
-	typedef SMPSerializable Serializable;
+	typedef Serializable Serializable;
 
 	namespace serializable_object_type
 	{
 		class GeneralType {};
 		class SpecialType {};
 		class CollectionType {};
-		class SMPSerializableType {};
+		class SerializableType {};
 	}
 }
 

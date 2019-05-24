@@ -9,8 +9,14 @@ namespace smps
 	template<typename T>
 	using ClearType = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
 
-	serializable_object_type::SMPSerializableType CheckSMPSObjectGhostFunc(SMPSerializable);
+	template<class Collection>
+	decltype(std::declval<Collection>().cbegin(), std::declval<serializable_object_type::CollectionType>()) CheckSMPSObjectGhostFunc(const Collection&);
+
+	serializable_object_type::SerializableType CheckSMPSObjectGhostFunc(Serializable);
+
 	serializable_object_type::GeneralType CheckSMPSObjectGhostFunc(...);
+	serializable_object_type::GeneralType CheckSMPSObjectGhostFunc(const std::string& str);
+
 
 	template<class ObjectType>
 	class SerializationTypeSelector
@@ -19,11 +25,11 @@ namespace smps
 		typedef decltype(CheckSMPSObjectGhostFunc(std::declval<ObjectType>())) SerializationType;
 	};
 
-	template<class SerializationType, class GeneralSerializer, class SpecialSerializer, class CollectionSerializer, class SMPSerializableSerializer, class SerializationDestination, class DeserializationSource>
+	template<class SerializationType, class GeneralSerializer, class CollectionSerializer, class SerializableSerializer, class SerializationDestination, class DeserializationSource>
 	class DecisionSerializer;
 
-	template<class GeneralSerializer, class SpecialSerializer, class CollectionSerializer, class SMPSerializableSerializer, class SerializationDestination, class DeserializationSource>
-	class DecisionSerializer<serializable_object_type::GeneralType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer, SerializationDestination, DeserializationSource>
+	template<class GeneralSerializer, class CollectionSerializer, class SerializableSerializer, class SerializationDestination, class DeserializationSource>
+	class DecisionSerializer<serializable_object_type::GeneralType, GeneralSerializer, CollectionSerializer, SerializableSerializer, SerializationDestination, DeserializationSource>
 	{
 	public:
 		template<class SerializationDestination, class Type>
@@ -39,25 +45,9 @@ namespace smps
 		}
 	};
 
-	template<class GeneralSerializer, class SpecialSerializer, class CollectionSerializer, class SMPSerializableSerializer, class SerializationDestination, class DeserializationSource>
-	class DecisionSerializer<serializable_object_type::SpecialType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer, SerializationDestination, DeserializationSource>
-	{
-	public:
-		template<class Type>
-		static void Serialize(SerializationDestination& dest, const Type& obj)
-		{
-			SpecialSerializer::Serialize(dest, obj);
-		}
 
-		template<class Type>
-		static void Deserialize(const DeserializationSource& src, Type& obj)
-		{
-			SpecialSerializer::Deserialize(src, obj);
-		}
-	};
-
-	template<class GeneralSerializer, class SpecialSerializer, class CollectionSerializer, class SMPSerializableSerializer, class SerializationDestination, class DeserializationSource>
-	class DecisionSerializer<serializable_object_type::CollectionType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer, SerializationDestination, DeserializationSource>
+	template<class GeneralSerializer, class CollectionSerializer, class SerializableSerializer, class SerializationDestination, class DeserializationSource>
+	class DecisionSerializer<serializable_object_type::CollectionType, GeneralSerializer, CollectionSerializer, SerializableSerializer, SerializationDestination, DeserializationSource>
 	{
 	public:
 		template< class Type>
@@ -73,38 +63,38 @@ namespace smps
 		}
 	};
 
-	template<class GeneralSerializer, class SpecialSerializer, class CollectionSerializer, class SMPSerializableSerializer, class SerializationDestination, class DeserializationSource>
-	class DecisionSerializer<serializable_object_type::SMPSerializableType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer, SerializationDestination, DeserializationSource>
+	template<class GeneralSerializer, class CollectionSerializer, class SerializableSerializer, class SerializationDestination, class DeserializationSource>
+	class DecisionSerializer<serializable_object_type::SerializableType, GeneralSerializer, CollectionSerializer, SerializableSerializer, SerializationDestination, DeserializationSource>
 	{
 	public:
 		template< class Type>
 		static void Serialize(SerializationDestination& dest, const Type& obj)
 		{
-			SMPSerializableSerializer::Serialize(dest, obj);
+			SerializableSerializer::Serialize(dest, obj);
 		}
 
 		template<class Type>
 		static void Deserialize(const DeserializationSource& src, Type& obj)
 		{
-			SMPSerializableSerializer::Deserialize(src, obj);
+			SerializableSerializer::Deserialize(src, obj);
 		}
 	};
 
 
-	template<class GeneralSerializer, class SpecialSerializer, class CollectionSerializer, class SMPSerializableSerializer, class SerializationDestination, class DeserializationSource>
+	template<class GeneralSerializer, class CollectionSerializer, class SerializableSerializer, class Mapper, class SerializationDestination, class DeserializationSource>
 	class Serializer
 	{
 	public:
 		template<class Type>
 		static void Serialize(SerializationDestination& dest, const Type& obj)
 		{
-			DecisionSerializer<SerializationTypeSelector<ClearType<Type>>::SerializationType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer, SerializationDestination, DeserializationSource>::Serialize(dest, obj);
+			DecisionSerializer<SerializationTypeSelector<ClearType<decltype(Mapper::Map(obj))>>::SerializationType, GeneralSerializer, CollectionSerializer, SerializableSerializer, SerializationDestination, DeserializationSource>::Serialize(dest, Mapper::Map(obj));
 		}
 
 		template<class Type>
 		static void Deserialize(const DeserializationSource& src, Type& obj)
 		{
-			DecisionSerializer<SerializationTypeSelector<ClearType<Type>>::SerializationType, GeneralSerializer, SpecialSerializer, CollectionSerializer, SMPSerializableSerializer, SerializationDestination, DeserializationSource>::Deserialize(src, obj);
+			DecisionSerializer<SerializationTypeSelector<ClearType<Type>>::SerializationType, GeneralSerializer, CollectionSerializer, SerializableSerializer, SerializationDestination, DeserializationSource>::Deserialize(src, obj);
 		}
 
 	};

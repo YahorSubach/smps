@@ -293,40 +293,86 @@ namespace smps
 
 
 		using GenSer = string_serializer::GeneralSerializer<std::string, JSONBlockReader>;
-		class JSONSerializerBase :public Serializer< GenSer, GenSer, smps::wrap_serializer::CollectionSerializer<JSONWrapper, StlCollectionAddProvider, JSONSerializerBase, std::string, JSONBlockReader>, smps::wrap_serializer::SMPSSerializableSerializer<JSONWrapper, StlCollectionAddProvider, JSONSerializerBase, std::string, JSONBlockReader>, std::string, JSONBlockReader>
+
+		template<class ResultType = std::string>
+		class JSONSerializerBase :public Serializer< string_serializer::GeneralSerializer<ResultType, JSONBlockReader>,
+			smps::wrap_serializer::CollectionSerializer<JSONWrapper, stl::Appender, JSONSerializerBase<ResultType>, ResultType, JSONBlockReader>,
+			smps::wrap_serializer::SMPSSerializableSerializer<JSONWrapper, stl::Appender, JSONSerializerBase<ResultType>, ResultType, JSONBlockReader>,
+			smps::stl::Mapper, ResultType, JSONBlockReader>
 		{};
 
-		class JSONSerializer :protected JSONSerializerBase
+		class JSONSerializer
 		{
 		public:
-			template<class Type>
-			static void Serialize(std::string& dest, const Type& obj)
+			template<class ResultType, class Type>
+			static void Serialize(ResultType& dest, const Type& obj)
 			{
-				JSONSerializerBase::Serialize(dest, obj);
+				JSONSerializerBase<ResultType>::Serialize(dest, obj);
 			}
 
-			template<class Type>
-			static std::string Serialize(const Type& obj)
+			template<class ResultType, class Type>
+			static ResultType&& Serialize(const Type& obj)
 			{
-				std::string res;
-				JSONSerializerBase::Serialize(res, obj);
-				return res;
+				ResultType res;
+				JSONSerializerBase<ResultType>::Serialize(res, obj);
+				return std::move(res);
 			}
 
 			template<class Type>
 			static void Deserialize(const std::string& src, Type& obj)
 			{
-				JSONSerializerBase::Deserialize(JSONBlockReader(src), obj);
+				JSONSerializerBase<>::Deserialize(JSONBlockReader(src), obj);
 			}
 
-			template<class Type>
+			template< class Type>
 			static Type Deserialize(const std::string& src)
 			{
 				Type res;
-				JSONSerializerBase::Deserialize(JSONBlockReader(src), res);
+				JSONSerializerBase<>::Deserialize(JSONBlockReader(src), res);
 				return res;
 			}
 		};
+
+		class FormattedJSONString
+		{
+			std::string str_;
+			int spacing_ = 0;
+		public:
+			std::string value;
+			void append(const std::string& str)
+			{
+
+				if (str == "[" || str == "{")
+				{
+					value.append(str);
+					spacing_++;
+					value += '\n';
+					for (int i = 0; i < spacing_; i++)
+						value += "    ";
+				}
+				else
+					if (str == "]" || str == "}")
+					{
+						spacing_--;
+						value += '\n';
+						for (int i = 0; i < spacing_; i++)
+							value += "    ";
+						value.append(str);
+					}
+					else
+						if (str == ",")
+						{
+							value.append(str);
+							value += '\n';
+							for (int i = 0; i < spacing_; i++)
+								value += "    ";
+						}
+						else
+							value.append(str);
+			}
+
+		};
+
 	}
 }
 #endif  // SMPS_JSON_H_

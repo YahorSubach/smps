@@ -7,7 +7,7 @@ namespace smps
 {
 	namespace wrap_serializer
 	{
-		template<class Wrapper, class AddToCollectionsProvider, class Serializer, class SerializationDestination, class DeserializationSource>
+		template<class Wrapper, class Appender, class Serializer, class SerializationDestination, class DeserializationSource>
 		class CollectionSerializer
 		{
 		public:
@@ -38,7 +38,7 @@ namespace smps
 				while (true)
 				{
 					Serializer::Deserialize(src, item);
-					AddToCollectionsProvider::Add(obj, item);
+					Appender::Append(obj, item);
 					if (!Wrapper::UnwrapCollectionDelimiter(src))
 						break;
 				}
