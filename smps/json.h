@@ -297,7 +297,7 @@ namespace smps
 		template<class ResultType = std::string>
 		class JSONSerializerBase :public Serializer< string_serializer::GeneralSerializer<ResultType, JSONBlockReader>,
 			smps::wrap_serializer::CollectionSerializer<JSONWrapper, stl::Appender, JSONSerializerBase<ResultType>, ResultType, JSONBlockReader>,
-			smps::wrap_serializer::SMPSSerializableSerializer<JSONWrapper, stl::Appender, JSONSerializerBase<ResultType>, ResultType, JSONBlockReader>,
+			smps::wrap_serializer::SMPSSerializableSerializer<JSONWrapper, JSONSerializerBase<ResultType>, ResultType, JSONBlockReader>,
 			smps::stl::Mapper, ResultType, JSONBlockReader>
 		{};
 

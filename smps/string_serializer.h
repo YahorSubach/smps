@@ -100,7 +100,7 @@ namespace smps
 			{
 
 				assert(src.Read() == "\"");
-				obj = StringUtil::Unescape(src.Read().value);
+				obj = StringUtil::Unescape(std::string(src.Read()));
 				assert(src.Read() == "\"");
 			}
 		};

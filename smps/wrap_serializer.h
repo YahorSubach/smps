@@ -46,7 +46,7 @@ namespace smps
 			}
 		};
 
-		template<class Wrapper, class AddToCollectionsProvider, class Serializer, class SerializationDestination, class DeserializationSource>
+		template<class Wrapper, class Serializer, class SerializationDestination, class DeserializationSource>
 		class SMPSSerializableSerializer
 		{
 			//std::map<Wrapper::FiledKeyType, SerializationDestination> deserialization_map_;
@@ -66,16 +66,38 @@ namespace smps
 					Serializer::Serialize(dest, Type::FieldAccessor<i>::GetField(obj));
 
 				}
+
+				static void Deserialize(const DeserializationSource& src, Type& obj/*, std::map<Wrapper::FieldHeader, DeserializationSource>& deserialization_map*/)
+				{
+					if (i > 1) {
+						RecursiveFieldsAccessor<Type, i - 1>::Deserialize(src, obj/*, deserialization_map*/);
+						Wrapper::UnwrapSMPSSerializableDelimiter(src);
+					}
+
+					std::string name;
+
+					Serializer::Deserialize(src, name);
+					Wrapper::UnwrapSMPSSerializableKeyValueDelimiter(src);
+					if (name == Type::FieldAccessor<i>::GetName())
+						Serializer::Deserialize(src, Type::FieldAccessor<i>::GetFieldAccessor(obj));
+
+				}
 			};
 
 			template<class Type>
 			class RecursiveFieldsAccessor<Type, 0>
 			{
 			public:
+
 				static void Serialize(SerializationDestination& dest, const Type& obj)
-				{
-				}
+				{}
+
+				static void Deserialize(const DeserializationSource& src, Type& obj/*, DeserializationSource > & deserialization_map*/)
+				{}
 			};
+
+
+
 
 
 		public:
@@ -91,15 +113,9 @@ namespace smps
 			template< class Type>
 			static void Deserialize(const DeserializationSource& src, Type& obj)
 			{
+				//std::map<Wrapper::FieldHeader, DeserializationSource> deserialization_map;
 				Wrapper::UnwrapSMPSSerializableBegin(src);
-				typename Type::value_type item;
-				while (true)
-				{
-					Serializer::Deserialize(src, item);
-					AddToSMPSSerializablesProvider::Add(obj, item);
-					if (!Wrapper::UnwrapSMPSSerializableDelimiter(src))
-						break;
-				}
+				RecursiveFieldsAccessor<Type, Type::FieldCount::value>::Deserialize(src, obj/*, deserialization_map*/);
 				Wrapper::UnwrapSMPSSerializableEnd(src);
 			}
 		};

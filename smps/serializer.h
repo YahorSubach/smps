@@ -94,7 +94,9 @@ namespace smps
 		template<class Type>
 		static void Deserialize(const DeserializationSource& src, Type& obj)
 		{
-			DecisionSerializer<SerializationTypeSelector<ClearType<Type>>::SerializationType, GeneralSerializer, CollectionSerializer, SerializableSerializer, SerializationDestination, DeserializationSource>::Deserialize(src, obj);
+			auto unmap_obj = Mapper::Unmap(obj);
+			DecisionSerializer<SerializationTypeSelector<ClearType<decltype(unmap_obj)>>::SerializationType, GeneralSerializer, CollectionSerializer, SerializableSerializer, SerializationDestination, DeserializationSource>::Deserialize(src, unmap_obj);
+			obj = (Type)(unmap_obj);
 		}
 
 	};

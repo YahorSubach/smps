@@ -9,12 +9,15 @@ namespace smps {
 		template<class T1, class T2>
 		class PairWrapper :public Serializable
 		{
-			T1 first;
-			T2 second;
+
 
 		public:
-
+			T1 first;
+			T2 second;
 			PairWrapper(const std::pair<T1, T2>& pair) : first(pair.first), second(pair.second) {}
+			operator std::pair<T1, T2>() {
+				return std::make_pair<first, second>();
+			}
 
 			SMPS_FIELDS(2)
 				SMPS_FIELD(1, first)
@@ -35,6 +38,19 @@ namespace smps {
 			{
 				return PairWrapper<T1, T2>(obj);
 			}
+
+			template<class ObjectType>
+			static ObjectType& Unmap(ObjectType& obj)
+			{
+				return obj;
+			}
+
+			template<class T1, class T2>
+			static PairWrapper<T1, T2> Unmap(std::pair<T1, T2>& obj)
+			{
+				return PairWrapper<T1, T2>(obj);
+			}
+
 		};
 
 

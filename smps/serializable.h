@@ -20,30 +20,30 @@ class FieldAccessor<i>\
 		template<class T>\
 		static const decltype(name)& GetField(const T& obj) {return obj.name;} \
 		template<class T>\
-		static void SetField(T& obj, const decltype(name)& value){ obj.name = value;}\
+		static decltype(name)& GetFieldAccessor(T& obj) {return obj.name;} \
 };\
 
-#define SMPS_FIELD_EXT(i, name, getter, setter)template<> \
-class FieldAccessor<i>\
-{\
-	public:\
-		static std::string GetName(){return std::string(#name);}\
-		template<class T>\
-		static decltype(getter) GetField(T* obj_ptr){return obj_ptr->getter();}\
-		template<class T>\
-		static void SetField(T* obj_ptr, decltype(getter)& value){ obj_ptr->setter(value);}\
-};\
-
-#define SMPS_FIELD_INH(i, name, base)template<> \
-class FieldAccessor<i>\
-{\
-	public:\
-		static std::string GetName(){return std::string(#name);}\
-		template<class T>\
-		static decltype(base::name) GetField(T* obj_ptr){return obj_ptr->base::name;}\
-		template<class T>\
-		static void SetField(T* obj_ptr, decltype(base::name)& value){ obj_ptr->base::name = value;}\
-};\
+//#define SMPS_FIELD_EXT(i, name, getter, setter)template<> \
+//class FieldAccessor<i>\
+//{\
+//	public:\
+//		static std::string GetName(){return std::string(#name);}\
+//		template<class T>\
+//		static decltype(getter) GetField(T* obj_ptr){return obj_ptr->getter();}\
+//		template<class T>\
+//		static void SetField(T* obj_ptr, decltype(getter)& value){ obj_ptr->setter(value);}\
+//};\
+//
+//#define SMPS_FIELD_INH(i, name, base)template<> \
+//class FieldAccessor<i>\
+//{\
+//	public:\
+//		static std::string GetName(){return std::string(#name);}\
+//		template<class T>\
+//		static decltype(base::name) GetField(T* obj_ptr){return obj_ptr->base::name;}\
+//		template<class T>\
+//		static void SetField(T* obj_ptr, decltype(base::name)& value){ obj_ptr->base::name = value;}\
+//};\
 
 
 
